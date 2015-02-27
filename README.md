@@ -1,5 +1,5 @@
-LUCA
-====
+LUCA --- Hacked by me, Moritz, to do some ancestral reconstruction of bacterial genomes
+=======================================================================================
 
 R code to find the probability of presence of a gene at the root of an evolutionary tree using its presence absence data from the current day species
 
