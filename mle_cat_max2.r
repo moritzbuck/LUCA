@@ -1,18 +1,25 @@
 ######
 ##  ML methods for ancestral nodes inference using paralog numbers
 
- library("ape")
- tree<-read.tree("/n/projects/hul/LUCA/Feb2009/cogs103/data/genomeTree.tre")
- genomes<-tree$tip.label
-source("/n/projects/lka/LUCAcog103/Sept2010/Optimization Codes/aceOptim_nonUniformPrior.r")
-
+library("ape")
+tree<-read.tree("all_prot_with_outgroups_nodes_labeled.tree")
+genomes<-tree$tip.label
+#source("/n/projects/lka/LUCAcog103/Sept2010/Optimization Codes/aceOptim_nonUniformPrior.r")
+source("aceOptim_nonequalpriors.r")
 
  ############# parameter models ##############
+ 
+data = read.csv("all_prot_with_outgroups.csv", h=T, row.names=1)
+outer = c("PseAer","SheOne","AerHyd","VibCho","VibFis","PhoPro", "HaeInf","PasMul","ManSuc","HaeDuc")
+tree = drop.tip(tree, outer)
+cogs = data[,1:34]
+cogs = cogs[, !(colnames(cogs) %in% outer)]
+ID <- as.vector(row.names(cogs))
+cogs = cogs[apply(cogs,1, function(x) sum(x != 0) > 1),]
 
-cogs<-read.delim("/n/projects/lka/LUCAcog103/Sept2010/Data/max2_data.txt")
-ID <- as.vector(cogs$COGs)
+cogs[cogs >1] = 2
 ncogs<-dim(cogs)[1]
-
+ 
 ###model 1
  modelx<-cbind(c(0,2,4), c(1,0, 5), c(3,5,0))
  colnames(modelx)<-c("state0", "state1", "state2")
@@ -31,10 +38,11 @@ out_M1<-list()
 length(out_M1)<-ncogs
 for (i in 1:ncogs){
  print(i)
- cogi<-data.frame(colnames(cogs)[-1], t(cogs[i, -1]))
+ cogi<-data.frame(colnames(cogs), t(cogs[i, ]))
  colnames(cogi)<-c("genome", "state")
-
- tips<-data.frame(seq(1:103), tree$tip.label)
+ # remove the X heading the two genomes that have a number as a name
+ cogi$genome =  sub("X", "", cogi$genome)
+ tips<-data.frame(seq(1:length(tree$tip.label)), tree$tip.label)
  colnames(tips)<-c("id", "label")
 
  tmp<-merge(tips, cogi, by.x="label", by.y="genome")

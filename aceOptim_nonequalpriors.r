@@ -10,7 +10,9 @@
 
 library("msm")
 
-aceOptim_nonUniformPrior<-function(x, phy, ip= 0, model="ER"){
+                                        #start at midi 20
+
+aceOptim_nonUniformPrior<-function(x, phy, ip= 1, model="ER"){
 
     obj <- list()
     nb.tip <- length(phy$tip.label)
@@ -65,7 +67,8 @@ aceOptim_nonUniformPrior<-function(x, phy, ip= 0, model="ER"){
         #out <- nlm(function(p) dev(p), p = rep(ip, length.out = np),
         #           hessian = TRUE)
         dQ = dim(Q)[1]
-        out <- constrOptim(theta = rep(ip, length.out = np),  function(p) dev(p), grad = NULL, ui = rbind(diag(np), c(rep(c(-1,10),dQ-1),rep(0,np-2*(dQ-1))), c(rep(c(20,-1),dQ-1),rep(0,np-2*(dQ-1)))), ci = rep(0,length.out = np+2))
+        matr = rbind(diag(np), c(rep(c(-1,10),dQ-1),rep(0,np-2*(dQ-1))), c(rep(c(20,-1),dQ-1),rep(0,np-2*(dQ-1))))
+        out <- constrOptim(theta = rep(ip, length.out = np),  dev, grad = NULL, ui = matr, ci = rep(0,length.out = np+2))
         obj$loglik <- -out$value / 2
         obj$rates <- out$par
         obj$index.matrix <- index.matrix
